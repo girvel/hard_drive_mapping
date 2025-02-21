@@ -1,11 +1,15 @@
 #include <stdio.h>
 #include <unistd.h>
-#include "lib/hd.h"
 #include <assert.h>
 #include <stdbool.h>
 #include <string.h>
 
 #define STORAGE "/var/cstorage/"
+
+
+/* PROFILE */
+
+#include "lib/hd.h"
 
 typedef enum {
    RelationshipStatus_Single,
@@ -31,7 +35,7 @@ typedef struct {
     RelationshipStatus relationship_status;
 } Person;
 
-int main() {
+void run_profile() {
     const char *owner_profile = STORAGE "owner_profile";
     bool is_empty = access(owner_profile, F_OK) != 0;
     Person *owner = hd_map(owner_profile, sizeof(Person));
@@ -49,6 +53,31 @@ int main() {
             owner->birth_year, owner->siblings_n, status_to_string(owner->relationship_status)
         );
     }
+}
 
+
+/* DYNAMIC ARRAY */
+
+#include "lib/list.h"
+
+void run_dynamic_array() {
+    List sample;
+    list_init(&sample, sizeof(int));
+    list_push(&sample, &(struct {int inner;}){12});
+    list_push(&sample, &(struct {int inner;}){24});
+    list_push(&sample, &(struct {int inner;}){48});
+    list_push(&sample, &(struct {int inner;}){96});
+    printf("%i\n", *(int *)list_at(&sample, 2));
+}
+
+
+/* */
+
+int main() {
+    printf("  PROFILE:\n");
+    run_profile();
+
+    printf("\n  DYNAMIC ARRAY:\n");
+    run_dynamic_array();
     return 0;
 }

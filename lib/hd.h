@@ -1,3 +1,5 @@
+#pragma once
+
 #include <aio.h>
 
 typedef struct {
