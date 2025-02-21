@@ -3,9 +3,8 @@
 #include <assert.h>
 
 int main() {
-    printf("Oh hi Mark!\n");
     const size_t FILE_SIZE = 16;
-    char *data = hd_map("storage", FILE_SIZE);
+    char *data = hd_map("/home/girvel/storage", FILE_SIZE);
     assert(data != NULL);
 
     printf("Incrementing\n");

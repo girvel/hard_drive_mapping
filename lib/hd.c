@@ -8,9 +8,9 @@ MappedMemory map_stats[MAX_MAPPED_N];
 size_t map_stats_size = 0;
 
 void *hd_map(const char *filename, size_t size) {
-    if (map_stats_size == MAX_MAPPED_N) return NULL;
+    if (map_stats_size >= MAX_MAPPED_N) return NULL;
 
-    int descriptor = open(filename, O_RDWR | O_CREAT);
+    int descriptor = open(filename, O_RDWR | O_CREAT, 00700);
     if (descriptor == -1) return NULL;
     if (ftruncate(descriptor, size) == -1) return NULL;
 
