@@ -1,6 +1,8 @@
 #include <sys/mman.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <assert.h>
+#include <stdbool.h>
 #include "./hd.h"
 
 #define MAX_MAPPED_N 64
@@ -27,15 +29,45 @@ void *hd_map(const char *filename, size_t size) {
     return address;
 }
 
-void hd_unmap(void *address) {
+typedef struct {
+    MappedMemory stat;
+    size_t index;
+} SearchResult;
+
+SearchResult find_stat(void *address) {
     for (size_t i = 0; i < map_stats_size; i++) {
         MappedMemory stat = map_stats[i];
-        if (stat.address == address) {
-            munmap(address, stat.size);
-            close(stat.descriptor);
-            map_stats[i] = map_stats[map_stats_size];
-            map_stats_size--;
-            return;
-        }
+        if (stat.address == address) return (SearchResult) {
+            .stat = stat,
+            .index = i,
+        };
     }
+    assert(false && "unable to find memory mapping info");
+}
+
+void hd_unmap(void *address) {
+    SearchResult match = find_stat(address);
+    munmap(address, match.stat.size);
+    close(match.stat.descriptor);
+    map_stats[match.index] = map_stats[map_stats_size];
+    map_stats_size--;
+}
+
+void *_hd_reallocate(void *self, void *prev, size_t size) {
+    HdAllocator *self_typed = self;
+    if (prev == NULL) return hd_map(self_typed->filename, size);
+    SearchResult match = find_stat(prev);
+    ftruncate(match.stat.descriptor, size);
+    return prev;
+}
+
+void _hd_free(void *self, void *address) {
+    (void)self;
+    hd_unmap(address);
+}
+
+void hd_allocator_init(HdAllocator *self, const char *filename) {
+    self->reallocate = _hd_reallocate;
+    self->free = _hd_free;
+    self->filename = filename;
 }

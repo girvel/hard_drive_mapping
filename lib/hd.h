@@ -16,3 +16,5 @@ typedef struct {
     void (*free)(void *, void *);
     const char *filename;
 } HdAllocator;
+
+void hd_allocator_init(HdAllocator *self, const char *filename);
