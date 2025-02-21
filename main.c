@@ -63,10 +63,7 @@ void run_profile() {
 void run_dynamic_array() {
     List sample;
     list_init(&sample, sizeof(int));
-    LIST_PUSH(&sample, int, 12);
-    LIST_PUSH(&sample, int, 24);
-    LIST_PUSH(&sample, int, 48);
-    LIST_PUSH(&sample, int, 96);
+    list_push_many(&sample, 4, (int[]){12, 24, 48, 96});
     printf("%i\n", *LIST_AT(&sample, int, 2));
 }
 
