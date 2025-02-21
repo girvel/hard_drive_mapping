@@ -5,6 +5,9 @@
 #include <stdbool.h>
 #include "./hd.h"
 
+#include "stdio.h"
+
+
 #define MAX_MAPPED_N 64
 MappedMemory map_stats[MAX_MAPPED_N];
 size_t map_stats_size = 0;
@@ -25,6 +28,7 @@ void *hd_map(const char *filename, size_t size) {
         .address = address,
     };
     map_stats_size++;
+    printf("%s is remembered as %p\n", filename, address);
 
     return address;
 }
@@ -35,14 +39,16 @@ typedef struct {
 } SearchResult;
 
 SearchResult find_stat(void *address) {
+    printf("searching for %p\n", address);
     for (size_t i = 0; i < map_stats_size; i++) {
         MappedMemory stat = map_stats[i];
+        printf("found %p\n", stat.address);
         if (stat.address == address) return (SearchResult) {
             .stat = stat,
             .index = i,
         };
     }
-    assert(false && "unable to find memory mapping info");
+    return (SearchResult) {.index = -1};
 }
 
 void hd_unmap(void *address) {
@@ -57,6 +63,7 @@ void *_hd_reallocate(void *self, void *prev, size_t size) {
     HdAllocator *self_typed = self;
     if (prev == NULL) return hd_map(self_typed->filename, size);
     SearchResult match = find_stat(prev);
+    if (match.index == -1) return hd_map(self_typed->filename, size);
     ftruncate(match.stat.descriptor, size);
     return prev;
 }

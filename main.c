@@ -56,6 +56,7 @@ int main() {
     list_push_many(&sample, 4, (int[]){12, 24, 48, 96});
     printf("%i\n", *LIST_AT(&sample, int, 2));
 
+
     printf("\n  OWNER PROFILE\n");
 
     const char *owner_profile = STORAGE "owner_profile";
@@ -75,6 +76,7 @@ int main() {
 
     hd_unmap(owner);
 
+
     printf("\n  ALL PROFILES\n");
 
     const char *profiles_stats = STORAGE "profiles_stats";
@@ -83,11 +85,16 @@ int main() {
     is_empty = access(profiles_stats, F_OK) != 0;
 
     List *all_profiles = hd_map(profiles_stats, sizeof(List));
-    if (is_empty) list_init(all_profiles, sizeof(Person));
+    // TODO! replace prev line by introducing Allocator.allocate?
+    if (is_empty) {
+        list_init(all_profiles, sizeof(Person));
+    }
 
-    all_profiles->array = hd_map(profiles_content, sizeof(Person) * 8);
-    all_profiles->capacity = 8;
+    HdAllocator profiles_allocator;
+    hd_allocator_init(&profiles_allocator, profiles_content);
+    all_profiles->allocator = (void *)&profiles_allocator;
 
+    printf("pushing\n");
     list_push(all_profiles, &(Person) {
         .first_name = "Demo",
         .second_name = "Demovich",
@@ -101,7 +108,7 @@ int main() {
         person_display(LIST_AT(all_profiles, Person, i));
     }
 
-    hd_unmap(all_profiles->array);
+    list_free(all_profiles);
     hd_unmap(all_profiles);
 
     return 0;

@@ -29,7 +29,9 @@ void list_init(List *self, size_t item_size) {
 
 void list_extend_exact(List *self, size_t capacity_increase) {
     self->capacity += capacity_increase;
-    self->array = self->allocator->reallocate(self->allocator, self->array, self->capacity);
+    self->array = self->allocator->reallocate(
+        self->allocator, self->array, self->capacity * self->item_size
+    );
 }
 
 void list_extend(List *self, size_t minimal_capacity_increase) {
