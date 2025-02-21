@@ -63,11 +63,11 @@ void run_profile() {
 void run_dynamic_array() {
     List sample;
     list_init(&sample, sizeof(int));
-    list_push(&sample, &(struct {int inner;}){12});
-    list_push(&sample, &(struct {int inner;}){24});
-    list_push(&sample, &(struct {int inner;}){48});
-    list_push(&sample, &(struct {int inner;}){96});
-    printf("%i\n", *(int *)list_at(&sample, 2));
+    LIST_PUSH(&sample, int, 12);
+    LIST_PUSH(&sample, int, 24);
+    LIST_PUSH(&sample, int, 48);
+    LIST_PUSH(&sample, int, 96);
+    printf("%i\n", *LIST_AT(&sample, int, 2));
 }
 
 
