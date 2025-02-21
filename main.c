@@ -4,12 +4,11 @@
 #include <stdbool.h>
 #include <string.h>
 
-#define STORAGE "/var/cstorage/"
-
-
-/* PROFILE */
-
 #include "lib/hd.h"
+#include "lib/list.h"
+
+
+#define STORAGE "/var/cstorage/"
 
 typedef enum {
    RelationshipStatus_Single,
@@ -26,6 +25,13 @@ const char *status_to_string(RelationshipStatus base) {
     assert(false && "unreachable");
 }
 
+RelationshipStatus status_from_string(const char *base) {
+    if (strcmp(base, "single") == 0) return RelationshipStatus_Single;
+    if (strcmp(base, "dating") == 0) return RelationshipStatus_Dating;
+    if (strcmp(base, "married") == 0) return RelationshipStatus_Married;
+    return -1;
+}
+
 typedef struct {
     char first_name[16];
     char second_name[16];
@@ -35,7 +41,16 @@ typedef struct {
     RelationshipStatus relationship_status;
 } Person;
 
-void run_profile() {
+void person_display(Person *self) {
+    printf("%s %s %s, born %i, %i siblings, %s\n",
+        self->first_name, self->second_name, self->last_name,
+        self->birth_year, self->siblings_n, status_to_string(self->relationship_status)
+    );
+}
+
+int main() {
+    printf("  OWNER PROFILE\n");
+
     const char *owner_profile = STORAGE "owner_profile";
     bool is_empty = access(owner_profile, F_OK) != 0;
     Person *owner = hd_map(owner_profile, sizeof(Person));
@@ -48,33 +63,39 @@ void run_profile() {
         owner->siblings_n = 1;
         owner->relationship_status = RelationshipStatus_Dating;
     } else {
-        printf("%s %s %s, born %i, %i siblings, %s\n",
-            owner->first_name, owner->second_name, owner->last_name,
-            owner->birth_year, owner->siblings_n, status_to_string(owner->relationship_status)
-        );
+        person_display(owner);
     }
-}
 
+    hd_unmap(owner);
 
-/* DYNAMIC ARRAY */
+    printf("\n  ALL PROFILES\n");
 
-#include "lib/list.h"
+    const char *profiles_stats = STORAGE "profiles_stats";
+    const char *profiles_content = STORAGE "profiles_content";
 
-void run_dynamic_array() {
-    List sample;
-    list_init(&sample, sizeof(int));
-    list_push_many(&sample, 4, (int[]){12, 24, 48, 96});
-    printf("%i\n", *LIST_AT(&sample, int, 2));
-}
+    is_empty = access(profiles_stats, F_OK) != 0;
 
+    List *all_profiles = hd_map(profiles_stats, sizeof(List));
+    if (is_empty) list_init(all_profiles, sizeof(Person));
 
-/* */
+    all_profiles->array = hd_map(profiles_content, sizeof(Person) * 8);
+    all_profiles->capacity = 8;
 
-int main() {
-    printf("  PROFILE:\n");
-    run_profile();
+    list_push(all_profiles, &(Person) {
+        .first_name = "Demo",
+        .second_name = "Demovich",
+        .last_name = "Demoviev",
+        .birth_year = 1999 + all_profiles->size,
+        .siblings_n = 0,
+        .relationship_status = RelationshipStatus_Single,
+    });
 
-    printf("\n  DYNAMIC ARRAY:\n");
-    run_dynamic_array();
+    for (size_t i = 0; i < all_profiles->size; i++) {
+        person_display(LIST_AT(all_profiles, Person, i));
+    }
+
+    hd_unmap(all_profiles->array);
+    hd_unmap(all_profiles);
+
     return 0;
 }
