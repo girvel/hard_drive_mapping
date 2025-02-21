@@ -3,7 +3,13 @@
 
 
 typedef struct {
+    void *(*reallocate)(void *, void *, size_t);
+    void (*free)(void *, void *);
+} Allocator;  // TODO! anonymous inline struct?
+
+typedef struct {
     void *array;
+    Allocator *allocator;
     size_t item_size;
     size_t size;
     size_t capacity;
@@ -15,6 +21,7 @@ void list_extend(List *self, size_t minimal_capacity_increase);
 void list_push(List *self, void *value);
 void list_push_many(List *self, size_t count, void *values);
 void *list_at(List *self, size_t index);
+void list_free(List *self);
 
 #define LIST_PUSH(SELF, TYPE, VALUE) list_push((SELF), &(struct {TYPE _;}){(VALUE)})
 #define LIST_AT(SELF, TYPE, INDEX) (TYPE *)list_at((SELF), (INDEX))

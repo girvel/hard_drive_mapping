@@ -6,8 +6,22 @@
 #include "./math.h"
 
 
+void *_ram_reallocate(void *_, void *prev, size_t size) {
+    return realloc(prev, size);
+}
+
+void _ram_free(void *_, void *address) {
+    free(address);
+}
+
+Allocator ram_allocator = {
+    .reallocate = _ram_reallocate,
+    .free = _ram_free,
+};
+
 void list_init(List *self, size_t item_size) {
     self->array = NULL;
+    self->allocator = &ram_allocator;
     self->item_size = item_size;
     self->size = 0;
     self->capacity = 0;
@@ -15,7 +29,7 @@ void list_init(List *self, size_t item_size) {
 
 void list_extend_exact(List *self, size_t capacity_increase) {
     self->capacity += capacity_increase;
-    self->array = realloc(self->array, self->capacity);
+    self->array = self->allocator->reallocate(self->allocator, self->array, self->capacity);
 }
 
 void list_extend(List *self, size_t minimal_capacity_increase) {
@@ -41,4 +55,8 @@ void list_push_many(List *self, size_t count, void *values) {
 
 void *list_at(List *self, size_t index) {
     return self->array + self->item_size * index;
+}
+
+void list_free(List *self) {
+    self->allocator->free(self->allocator, self->array);
 }

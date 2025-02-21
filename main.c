@@ -49,7 +49,14 @@ void person_display(Person *self) {
 }
 
 int main() {
-    printf("  OWNER PROFILE\n");
+    printf("  DYNAMIC ARRAY\n");
+
+    List sample;
+    list_init(&sample, sizeof(int));
+    list_push_many(&sample, 4, (int[]){12, 24, 48, 96});
+    printf("%i\n", *LIST_AT(&sample, int, 2));
+
+    printf("\n  OWNER PROFILE\n");
 
     const char *owner_profile = STORAGE "owner_profile";
     bool is_empty = access(owner_profile, F_OK) != 0;
