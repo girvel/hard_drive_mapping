@@ -16,6 +16,7 @@ typedef struct {
 } List;
 
 void list_init(List *self, size_t item_size);
+List list_new(size_t item_size);
 void list_extend_exact(List *self, size_t capacity_increase);
 void list_extend(List *self, size_t minimal_capacity_increase);
 void list_push(List *self, void *value);

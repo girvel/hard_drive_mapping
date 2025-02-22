@@ -48,6 +48,34 @@ void person_display(Person *self) {
     );
 }
 
+List _hd_allocators = {0};
+
+List *list_new_hd(size_t item_size, const char *stats_path, const char *data_path) {
+    bool is_empty = access(stats_path, F_OK) != 0;
+
+    List *result = hd_map(stats_path, sizeof(List));
+    // TODO! replace prev line by introducing Allocator.allocate?
+    if (is_empty) {
+        list_init(result, item_size);
+    }
+
+    if (_hd_allocators.allocator == NULL) list_init(&_hd_allocators, sizeof(HdAllocator));
+    list_push(&_hd_allocators, &(HdAllocator) {0});
+    HdAllocator *last = list_at(&_hd_allocators, _hd_allocators.size - 1);
+    hd_allocator_init(last, data_path);
+    result->allocator = (void *)last;
+    result->array = hd_map(data_path, result->capacity * result->item_size);
+
+    return result;
+}
+
+void list_free_hd(void *address) {
+    list_free(address);
+    hd_unmap(address);
+
+    // TODO! clean up _hd_allocators
+}
+
 int main() {
     printf("  DYNAMIC ARRAY\n");
 
@@ -82,18 +110,7 @@ int main() {
     const char *profiles_stats = STORAGE "profiles_stats";
     const char *profiles_content = STORAGE "profiles_content";
 
-    is_empty = access(profiles_stats, F_OK) != 0;
-
-    List *all_profiles = hd_map(profiles_stats, sizeof(List));
-    // TODO! replace prev line by introducing Allocator.allocate?
-    if (is_empty) {
-        list_init(all_profiles, sizeof(Person));
-    }
-
-    HdAllocator profiles_allocator;
-    hd_allocator_init(&profiles_allocator, profiles_content);
-    all_profiles->allocator = (void *)&profiles_allocator;
-    all_profiles->array = hd_map(profiles_content, all_profiles->capacity * all_profiles->item_size);
+    List *all_profiles = list_new_hd(sizeof(Person), profiles_stats, profiles_content);
 
     list_push(all_profiles, &(Person) {
         .first_name = "Demo",
@@ -108,8 +125,7 @@ int main() {
         person_display(LIST_AT(all_profiles, Person, i));
     }
 
-    list_free(all_profiles);
-    hd_unmap(all_profiles);
+    list_free_hd(all_profiles);
 
     return 0;
 }
