@@ -28,7 +28,6 @@ void *hd_map(const char *filename, size_t size) {
         .address = address,
     };
     map_stats_size++;
-    printf("%s is remembered as %p\n", filename, address);
 
     return address;
 }
@@ -39,10 +38,8 @@ typedef struct {
 } SearchResult;
 
 SearchResult find_stat(void *address) {
-    printf("searching for %p\n", address);
     for (size_t i = 0; i < map_stats_size; i++) {
         MappedMemory stat = map_stats[i];
-        printf("found %p\n", stat.address);
         if (stat.address == address) return (SearchResult) {
             .stat = stat,
             .index = i,

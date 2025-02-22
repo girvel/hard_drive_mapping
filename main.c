@@ -95,7 +95,6 @@ int main() {
     all_profiles->allocator = (void *)&profiles_allocator;
     all_profiles->array = hd_map(profiles_content, all_profiles->capacity * all_profiles->item_size);
 
-    printf("pushing\n");
     list_push(all_profiles, &(Person) {
         .first_name = "Demo",
         .second_name = "Demovich",
