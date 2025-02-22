@@ -93,6 +93,7 @@ int main() {
     HdAllocator profiles_allocator;
     hd_allocator_init(&profiles_allocator, profiles_content);
     all_profiles->allocator = (void *)&profiles_allocator;
+    all_profiles->array = hd_map(profiles_content, all_profiles->capacity * all_profiles->item_size);
 
     printf("pushing\n");
     list_push(all_profiles, &(Person) {
