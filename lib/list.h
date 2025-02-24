@@ -8,7 +8,7 @@ typedef struct {
 } Allocator;  // TODO! anonymous inline struct?
 
 typedef struct {
-    void *array;
+    void *address;
     Allocator *allocator;
     size_t item_size;
     size_t size;

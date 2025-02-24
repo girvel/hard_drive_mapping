@@ -64,7 +64,7 @@ List *list_new_hd(size_t item_size, const char *stats_path, const char *data_pat
     HdAllocator *last = list_at(&_hd_allocators, _hd_allocators.size - 1);
     hd_allocator_init(last, data_path);
     result->allocator = (void *)last;
-    result->array = hd_map(data_path, result->capacity * result->item_size);
+    result->address = hd_map(data_path, result->capacity * result->item_size);
 
     return result;
 }
@@ -105,27 +105,27 @@ int main() {
     hd_unmap(owner);
 
 
-    printf("\n  ALL PROFILES\n");
+    // printf("\n  ALL PROFILES\n");
 
-    const char *profiles_stats = STORAGE "profiles_stats";
-    const char *profiles_content = STORAGE "profiles_content";
+    // List all_profiles;
+    // list_take_ownership(&all_profiles, hd_map(STORAGE "profiles"));
+    // all_profiles.allocator = malloc(sizeof(HdAllocator));
 
-    List *all_profiles = list_new_hd(sizeof(Person), profiles_stats, profiles_content);
+    // list_push(&all_profiles, &(Person) {
+    //     .first_name = "Demo",
+    //     .second_name = "Demovich",
+    //     .last_name = "Demoviev",
+    //     .birth_year = 1999 + all_profiles.size,
+    //     .siblings_n = 0,
+    //     .relationship_status = RelationshipStatus_Single,
+    // });
 
-    list_push(all_profiles, &(Person) {
-        .first_name = "Demo",
-        .second_name = "Demovich",
-        .last_name = "Demoviev",
-        .birth_year = 1999 + all_profiles->size,
-        .siblings_n = 0,
-        .relationship_status = RelationshipStatus_Single,
-    });
+    // for (size_t i = 0; i < all_profiles.size; i++) {
+    //     person_display(LIST_AT(&all_profiles, Person, i));
+    // }
 
-    for (size_t i = 0; i < all_profiles->size; i++) {
-        person_display(LIST_AT(all_profiles, Person, i));
-    }
-
-    list_free_hd(all_profiles);
+    // hd_unmap(all_profiles.address);
+    // free(all_profiles.allocator);
 
     return 0;
 }
