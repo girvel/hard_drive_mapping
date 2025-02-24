@@ -1,6 +1,7 @@
 #pragma once
 
 #include <aio.h>
+#include "./memory.h"
 
 typedef struct {
     int descriptor;
@@ -9,6 +10,7 @@ typedef struct {
 } MappedMemory;
 
 void *hd_map(const char *filename, size_t size);
+Fat hd_map_all(const char *filename);
 void hd_unmap(void *address);
 
 typedef struct {

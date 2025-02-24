@@ -108,8 +108,9 @@ int main() {
     // printf("\n  ALL PROFILES\n");
 
     // List all_profiles;
-    // list_take_ownership(&all_profiles, hd_map(STORAGE "profiles"));
+    // list_take_ownership(&all_profiles, hd_map_all(STORAGE "profiles"));
     // all_profiles.allocator = malloc(sizeof(HdAllocator));
+    // hd_allocator_init(&all_profiles.allocator);
 
     // list_push(&all_profiles, &(Person) {
     //     .first_name = "Demo",

@@ -5,7 +5,7 @@
 typedef struct {
     void *(*reallocate)(void *, void *, size_t);
     void (*free)(void *, void *);
-} Allocator;  // TODO! anonymous inline struct?
+} Allocator;
 
 typedef struct {
     void *address;
