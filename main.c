@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include <assert.h>
 #include <stdbool.h>
@@ -72,8 +73,6 @@ List *list_new_hd(size_t item_size, const char *stats_path, const char *data_pat
 void list_free_hd(void *address) {
     list_free(address);
     hd_unmap(address);
-
-    // TODO! clean up _hd_allocators
 }
 
 int main() {
@@ -104,29 +103,34 @@ int main() {
 
     hd_unmap(owner);
 
+    printf("\n  ALL PROFILES\n");
 
-    // printf("\n  ALL PROFILES\n");
+    const char *filepath = STORAGE "profiles";
+    List all_profiles;
+    void *allocator = malloc(sizeof(HdAllocator));
+    hd_allocator_init(allocator, filepath);
+    list_init_owning(
+        &all_profiles,
+        sizeof(Person),
+        hd_map_all(filepath),
+        allocator
+    );
 
-    // List all_profiles;
-    // list_take_ownership(&all_profiles, hd_map_all(STORAGE "profiles"));
-    // all_profiles.allocator = malloc(sizeof(HdAllocator));
-    // hd_allocator_init(&all_profiles.allocator);
+    list_push(&all_profiles, &(Person) {
+        .first_name = "Demo",
+        .second_name = "Demovich",
+        .last_name = "Demoviev",
+        .birth_year = 1999 + all_profiles.size,
+        .siblings_n = 0,
+        .relationship_status = RelationshipStatus_Single,
+    });
 
-    // list_push(&all_profiles, &(Person) {
-    //     .first_name = "Demo",
-    //     .second_name = "Demovich",
-    //     .last_name = "Demoviev",
-    //     .birth_year = 1999 + all_profiles.size,
-    //     .siblings_n = 0,
-    //     .relationship_status = RelationshipStatus_Single,
-    // });
+    for (size_t i = 0; i < all_profiles.size; i++) {
+        person_display(LIST_AT(&all_profiles, Person, i));
+    }
 
-    // for (size_t i = 0; i < all_profiles.size; i++) {
-    //     person_display(LIST_AT(&all_profiles, Person, i));
-    // }
-
-    // hd_unmap(all_profiles.address);
-    // free(all_profiles.allocator);
+    hd_unmap(all_profiles.address);
+    free(all_profiles.allocator);
 
     return 0;
 }

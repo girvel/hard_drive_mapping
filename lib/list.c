@@ -19,7 +19,7 @@ void _ram_free(void *self, void *address) {
 Allocator ram_allocator = {
     .reallocate = _ram_reallocate,
     .free = _ram_free,
-};
+};  // TODO! move to memory.c
 
 void list_init(List *self, size_t item_size) {
     self->address = NULL;
@@ -29,18 +29,34 @@ void list_init(List *self, size_t item_size) {
     self->capacity = 0;
 }
 
+size_t _find_capacity(size_t prev_capacity, size_t size) {
+    prev_capacity = MAX(1U, prev_capacity);
+    for (; prev_capacity < size; prev_capacity *= 2);
+    return prev_capacity;
+}
+
+void list_init_owning(List *self, size_t item_size, Fat memory, void *allocator) {
+    self->address = memory.address;
+    self->allocator = allocator == NULL ? &ram_allocator : allocator;
+    self->item_size = item_size;
+    self->size = memory.size;
+    self->capacity = _find_capacity(0, memory.size / item_size);
+}
+
 void list_extend_exact(List *self, size_t capacity_increase) {
+    size_t old_capacity = self->capacity;
     self->capacity += capacity_increase;
-    self->address = self->allocator->reallocate(
+    void *new_address = self->allocator->reallocate(
         self->allocator, self->address, self->capacity * self->item_size
     );
+    if (self->address != new_address && self->address != NULL) {
+        memcpy(self->address, new_address, old_capacity);
+    }
+    self->address = new_address;
 }
 
 void list_extend(List *self, size_t minimal_capacity_increase) {
-    size_t new_capacity = MAX(self->capacity, (size_t) 1);
-    size_t minimal_new_capacity = self->capacity + minimal_capacity_increase;
-    for (; new_capacity < minimal_new_capacity; new_capacity *= 2);
-    list_extend_exact(self, new_capacity - self->capacity);
+    list_extend_exact(self, _find_capacity(self->capacity, minimal_capacity_increase));
 }
 
 void list_push(List *self, void *value) {

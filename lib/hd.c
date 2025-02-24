@@ -1,4 +1,5 @@
 #include <sys/mman.h>
+#include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <assert.h>
@@ -32,9 +33,33 @@ void *hd_map(const char *filename, size_t size) {
     return address;
 }
 
+Fat hd_map_all(const char *filename) {
+    if (map_stats_size >= MAX_MAPPED_N) return (Fat) {0};
+
+    int descriptor = open(filename, O_RDWR | O_CREAT, 00700);
+    if (descriptor == -1) return (Fat) {0};
+
+    struct stat file_stat;
+    if (fstat(descriptor, &file_stat) == -1) return (Fat) {0};
+    
+    void* address = mmap(
+        NULL, file_stat.st_size, PROT_READ | PROT_WRITE, MAP_SHARED, descriptor, 0
+    );
+    if (address == NULL) return (Fat) {0};
+
+    map_stats[map_stats_size] = (MappedMemory) {
+        .descriptor = descriptor,
+        .size = file_stat.st_size,
+        .address = address,
+    };
+    map_stats_size++;
+
+    return (Fat) {address, file_stat.st_size};
+}
+
 typedef struct {
     MappedMemory stat;
-    size_t index;
+    off_t index;
 } SearchResult;
 
 SearchResult find_stat(void *address) {
