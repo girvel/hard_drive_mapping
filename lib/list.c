@@ -38,8 +38,8 @@ void list_init_owning(List *self, size_t item_size, Fat memory, void *allocator)
     self->address = memory.address;
     self->allocator = allocator == NULL ? &ram_allocator : allocator;
     self->item_size = item_size;
-    self->size = memory.size;
-    self->capacity = _find_capacity(0, memory.size / item_size);
+    self->size = memory.size / item_size;
+    self->capacity = self->size;
 }
 
 void list_extend_exact(List *self, size_t capacity_increase) {
