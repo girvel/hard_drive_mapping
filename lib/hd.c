@@ -88,8 +88,8 @@ void *_hd_reallocate(void *self, void *prev, size_t size) {
     SearchResult match = find_stat(prev);
     if (match.index == -1) return hd_map(self_typed->filename, size);
 
-    ftruncate(match.stat.descriptor, size);
     munmap(match.stat.address, match.stat.size);
+    ftruncate(match.stat.descriptor, size);
     match.stat.size = size;
     match.stat.address = mmap(
         prev, size, PROT_READ | PROT_WRITE, MAP_SHARED, match.stat.descriptor, 0

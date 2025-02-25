@@ -30,8 +30,7 @@ void list_init(List *self, size_t item_size) {
 }
 
 size_t _find_capacity(size_t prev_capacity, size_t size) {
-    prev_capacity = MAX(1U, prev_capacity);
-    for (; prev_capacity < size; prev_capacity *= 2);
+    for (; prev_capacity < size; prev_capacity += MAX(1U, prev_capacity));
     return prev_capacity;
 }
 
@@ -56,7 +55,9 @@ void list_extend_exact(List *self, size_t capacity_increase) {
 }
 
 void list_extend(List *self, size_t minimal_capacity_increase) {
-    list_extend_exact(self, _find_capacity(self->capacity, minimal_capacity_increase));
+    list_extend_exact(
+        self, _find_capacity(self->capacity, minimal_capacity_increase) - self->capacity
+    );
 }
 
 void list_push(List *self, void *value) {
