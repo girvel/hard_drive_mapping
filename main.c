@@ -7,6 +7,7 @@
 #include <math.h>
 
 #include "lib/list.h"
+#include "lib/map.h"
 
 
 typedef enum {
@@ -48,6 +49,8 @@ void person_display(Person *self) {
 }
 
 bool is_simple(int n) {
+    if (n < 2) return false;
+
     double end = sqrt(n);
     for (size_t d = 2; d <= end; d++) {
         if (n % d == 0) return false;
@@ -74,6 +77,24 @@ int main() {
     printf("\n\ncapacity: %zu, size: %zu\n", sample.capacity, sample.size);
 
     list_free(&sample);
+
+
+    printf("  HASHMAP\n");
+
+    Map simple_numbers;  // TODO fill by default?
+    simple_numbers.address = malloc(sizeof(size_t) * 50);
+    simple_numbers.capacity = 50;
+    simple_numbers.size = 0;
+
+    size_t counter = 1;
+    for (size_t n = 0; n < 100; n++) {
+        if (is_simple(n)) {
+            map_set(&simple_numbers, n, counter);
+            counter++;
+        }
+    }
+
+    printf("%zu\n", map_get(simple_numbers, 3, 0));
 
     return 0;
 }
