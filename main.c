@@ -4,6 +4,7 @@
 #include <assert.h>
 #include <stdbool.h>
 #include <string.h>
+#include <math.h>
 
 #include "lib/list.h"
 
@@ -46,17 +47,31 @@ void person_display(Person *self) {
     );
 }
 
+bool is_simple(int n) {
+    double end = sqrt(n);
+    for (size_t d = 2; d <= end; d++) {
+        if (n % d == 0) return false;
+    }
+
+    return true;
+}
+
 int main() {
     printf("  DYNAMIC ARRAY\n");
 
     List sample;
     list_init(&sample, sizeof(int));
-    list_push_many(&sample, 4, (int[]){12, 24, 48, 96});
 
-    for (size_t i = 0; i < sample.size; i++) {
+    for (int n = 0; n < 10000; n++) {
+        if (is_simple(n)) {
+            list_push(&sample, &n);
+        }
+    }
+
+    for (size_t i = 0; i < sample.capacity; i++) {
         printf("%i ", *LIST_AT(&sample, int, i));
     }
-    printf("\n");
+    printf("\n\ncapacity: %zu, size: %zu\n", sample.capacity, sample.size);
 
     list_free(&sample);
 

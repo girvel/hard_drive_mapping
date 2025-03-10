@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -std=c11 -Wall -Wextra -D_XOPEN_SOURCE=500 -g3 -O0
+CFLAGS = -std=c11 -Wall -Wextra -D_XOPEN_SOURCE=500 -g3 -O0 -lm
 
 LIBS = $(wildcard lib/*.c)
 SOURCES = $(LIBS) main.c
@@ -11,7 +11,7 @@ run: build
 build: a.out
 
 a.out: $(OBJECTS)
-	$(CC) $(CFLAGS) $^ -o $@
+	$(CC) $^ -o $@ $(CFLAGS) 
 
 obj/main.o: main.c
 	$(CC) $(CFLAGS) $^ -c -o $@

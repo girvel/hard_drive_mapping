@@ -29,7 +29,8 @@ void list_extend_exact(List *self, size_t capacity_increase) {
 
 void list_extend(List *self, size_t minimal_capacity_increase) {
     list_extend_exact(
-        self, _find_capacity(self->capacity, minimal_capacity_increase) - self->capacity
+        self,
+        _find_capacity(self->capacity, self->capacity + minimal_capacity_increase) - self->capacity
     );
 }
 
