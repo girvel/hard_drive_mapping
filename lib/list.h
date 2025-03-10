@@ -1,23 +1,15 @@
 #include <stdint.h>
 #include <string.h>
-#include "./memory.h"
 
-
-typedef struct {
-    void *(*reallocate)(void *, void *, size_t);
-    void (*free)(void *, void *);
-} Allocator;
 
 typedef struct {
     void *address;
-    Allocator *allocator;
     size_t item_size;
     size_t size;
     size_t capacity;
 } List;
 
 void list_init(List *self, size_t item_size);
-void list_init_owning(List *self, size_t item_size, Fat memory, void *allocator);
 void list_extend_exact(List *self, size_t capacity_increase);
 void list_extend(List *self, size_t minimal_capacity_increase);
 void list_push(List *self, void *value);

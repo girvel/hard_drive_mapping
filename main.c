@@ -5,11 +5,8 @@
 #include <stdbool.h>
 #include <string.h>
 
-#include "lib/hd.h"
 #include "lib/list.h"
 
-
-#define STORAGE "/var/cstorage/"
 
 typedef enum {
    RelationshipStatus_Single,
@@ -49,88 +46,19 @@ void person_display(Person *self) {
     );
 }
 
-List _hd_allocators = {0};
-
-List *list_new_hd(size_t item_size, const char *stats_path, const char *data_path) {
-    bool is_empty = access(stats_path, F_OK) != 0;
-
-    List *result = hd_map(stats_path, sizeof(List));
-    // TODO! replace prev line by introducing Allocator.allocate?
-    if (is_empty) {
-        list_init(result, item_size);
-    }
-
-    if (_hd_allocators.allocator == NULL) list_init(&_hd_allocators, sizeof(HdAllocator));
-    list_push(&_hd_allocators, &(HdAllocator) {0});
-    HdAllocator *last = list_at(&_hd_allocators, _hd_allocators.size - 1);
-    hd_allocator_init(last, data_path);
-    result->allocator = (void *)last;
-    result->address = hd_map(data_path, result->capacity * result->item_size);
-
-    return result;
-}
-
-void list_free_hd(void *address) {
-    list_free(address);
-    hd_unmap(address);
-}
-
 int main() {
     printf("  DYNAMIC ARRAY\n");
 
     List sample;
     list_init(&sample, sizeof(int));
     list_push_many(&sample, 4, (int[]){12, 24, 48, 96});
-    printf("%i\n", *LIST_AT(&sample, int, 2));
 
-
-    printf("\n  OWNER PROFILE\n");
-
-    const char *owner_profile = STORAGE "owner_profile";
-    bool is_empty = access(owner_profile, F_OK) != 0;
-    Person *owner = hd_map(owner_profile, sizeof(Person));
-
-    if (is_empty) {
-        strcpy(owner->first_name, "Nikita");
-        strcpy(owner->second_name, "Sergeyevich");
-        strcpy(owner->last_name, "Dobrynin");
-        owner->birth_year = 2001;
-        owner->siblings_n = 1;
-        owner->relationship_status = RelationshipStatus_Dating;
-    } else {
-        person_display(owner);
+    for (size_t i = 0; i < sample.size; i++) {
+        printf("%i ", *LIST_AT(&sample, int, i));
     }
+    printf("\n");
 
-    hd_unmap(owner);
-
-    printf("\n  ALL PROFILES\n");
-
-    const char *filepath = STORAGE "profiles";
-    List all_profiles;
-    void *allocator = malloc(sizeof(HdAllocator));
-    hd_allocator_init(allocator, filepath);
-    list_init_owning(
-        &all_profiles,
-        sizeof(Person),
-        hd_map_all(filepath),
-        allocator
-    );
-
-    list_push(&all_profiles, &(Person) {
-        .first_name = "Demo",
-        .second_name = "Demovich",
-        .last_name = "Demoviev",
-        .birth_year = 1999 + all_profiles.size,
-        .siblings_n = 0,
-        .relationship_status = RelationshipStatus_Single,
-    });
-
-    for (size_t i = 0; i < all_profiles.size; i++) {
-        person_display(LIST_AT(&all_profiles, Person, i));
-    }
-
-    hd_unmap(all_profiles.address);
-    free(all_profiles.allocator);
+    list_free(&sample);
 
     return 0;
 }
