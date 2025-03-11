@@ -7,9 +7,9 @@
 
 
 void map_set(Map *self, size_t key, size_t value) {
-    size_t offset = 2 * (key % (self->capacity / 2));
+    size_t offset = 2 * (key % self->capacity);
     while (self->address[offset] != key && self->address[offset] != 0) {
-        offset = (offset + 1) % self->capacity;
+        offset = (offset + 2) % self->capacity;
     }
 
     if (self->address[offset] == 0) self->size++;
