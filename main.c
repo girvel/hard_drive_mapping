@@ -81,9 +81,11 @@ int main() {
 
     printf("  HASHMAP\n");
 
-    Map simple_numbers;  // TODO fill by default?
-    simple_numbers.address = malloc(sizeof(size_t) * 50);
+    Map simple_numbers;
     simple_numbers.capacity = 50;
+    size_t memory_length = sizeof(size_t) * simple_numbers.capacity * 2;
+    simple_numbers.address = malloc(memory_length);
+    memset(simple_numbers.address, 0, memory_length);
     simple_numbers.size = 0;
 
     size_t counter = 1;
@@ -94,7 +96,7 @@ int main() {
         }
     }
 
-    printf("%zu\n", map_get(simple_numbers, 3, 0));
+    printf("%zu\n", map_get(simple_numbers, 53, 0));
 
     return 0;
 }
