@@ -8,6 +8,7 @@
 #include <math.h>
 
 void show(void *address, size_t size) {
+    (void) size;
     printf("%zu\t", *(size_t *)address);
     // for (size_t j = 0; j < size; j++) {
     //     printf("%02x", *((uint8_t *)(address + j)));
@@ -16,6 +17,7 @@ void show(void *address, size_t size) {
 
 #include "lib/list.h"
 #include "lib/map.h"
+#include "lib/test.h"
 
 
 bool is_simple(int n) {
@@ -47,7 +49,36 @@ size_t hash_size_t(void *value) {
     return *(size_t *)value;
 }
 
+void test_list_usage() {
+    const size_t size = 1000;
+
+    List sample;
+    list_init(&sample, sizeof(int));
+    for (int i = 0; i < (int) size; i++) {
+        list_push(&sample, &i);
+    }
+
+    ASSERT(sample.size == size);
+    ASSERT(sample.capacity == 1024);
+
+    int sum = 0;
+    for (size_t i = 0; i < sample.size; i++) {
+        sum += i;
+    }
+
+    ASSERT(sum == 499500);
+
+    list_free(&sample);
+}
+
+Test tests[] = {
+    test_list_usage,
+    NULL,
+};
+
 int main() {
+    return run_tests(tests);
+
     printf("  DYNAMIC ARRAY\n");
 
     List sample;
