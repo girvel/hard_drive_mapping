@@ -16,5 +16,5 @@ void list_push_many(List *self, size_t count, void *values);
 void *list_at(List *self, size_t index);
 void list_free(List *self);
 
-#define LIST_PUSH(SELF, TYPE, VALUE) list_push((SELF), REF(TYPE, VALUE))
+#define LIST_PUSH(SELF, VALUE) list_push((SELF), REF(VALUE))
 #define LIST_AT(SELF, TYPE, INDEX) (TYPE *)list_at((SELF), (INDEX))

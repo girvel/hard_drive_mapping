@@ -10,6 +10,7 @@
 #include "lib/list.h"
 #include "lib/map.h"
 #include "lib/test.h"
+#include "lib/macros.h"
 
 
 bool is_simple(int n) {
@@ -73,7 +74,7 @@ void test_map() {
     simple_numbers.hash = hash_size_t;
 
     size_t counter = 1;
-    for (size_t n = 0; n < 97; n++) {
+    for (size_t n = 0; n < 100; n++) {
         if (is_simple(n)) {
             map_set(&simple_numbers, &n, &counter);
             counter++;
@@ -81,9 +82,9 @@ void test_map() {
     }
 
     counter = 1;
-    for (size_t n = 0; n < 97; n++) {
+    for (size_t n = 0; n < 100; n++) {
         if (is_simple(n)) {
-            ASSERT(*(size_t *)map_get(simple_numbers, &n, &(struct {size_t _;}){(0)}) == counter);
+            ASSERT(*(size_t *)map_get(simple_numbers, &n, REF(0)) == counter);
             counter++;
         }
     }

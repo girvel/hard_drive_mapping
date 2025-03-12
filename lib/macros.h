@@ -10,4 +10,4 @@
     _a < _b ? _a : _b; \
 }
 
-#define REF(TYPE, VALUE) &(struct {TYPE _;}){(VALUE)}
+#define REF(VALUE) &(struct {__typeof__ (VALUE) _;}){(VALUE)}
