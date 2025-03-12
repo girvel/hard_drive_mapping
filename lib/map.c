@@ -19,17 +19,17 @@ bool _is_zero(void *address, size_t size) {
 void map_set(Map *self, void *key, void *value) {
     size_t hash = self->hash(key);
     size_t step = self->key_size + self->value_size;
-    size_t offset = step * (hash % self->capacity);
+    size_t offset = hash % self->capacity;
 
     void *key_stored;
     while (true) {
-        key_stored = self->address + offset;
+        key_stored = self->address + offset * step;
         if (
             _is_zero(key_stored, self->key_size) ||
             memcmp(key_stored, key, self->key_size) == 0
         ) break;
 
-        offset = (offset + step) % (self->capacity * step);
+        offset = (offset + 1) % self->capacity;
     }
 
     if (key_stored == NULL) self->size++;
@@ -42,16 +42,16 @@ void *map_get(Map self, void *key, void *default_value) {
 
     size_t hash = self.hash(key);
     size_t step = self.key_size + self.value_size;
-    size_t initial_offset = step * (hash % self.capacity);
+    size_t initial_offset = hash % self.capacity;
     size_t offset = initial_offset;
 
-    while (memcmp(self.address + offset, key, self.key_size) != 0) {
-        offset = (offset + step) % (self.capacity * step);
+    while (memcmp(self.address + offset * step, key, self.key_size) != 0) {
+        offset = (offset + 1) % self.capacity;
         if (offset == initial_offset) {
             return default_value;
         }
     }
 
-    return self.address + offset + self.key_size;
+    return self.address + offset * step + self.key_size;
 }
 
