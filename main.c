@@ -1,10 +1,18 @@
-#include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
+#include <stdio.h>
 #include <unistd.h>
 #include <assert.h>
 #include <stdbool.h>
 #include <string.h>
 #include <math.h>
+
+void show(void *address, size_t size) {
+    printf("%zu\t", *(size_t *)address);
+    // for (size_t j = 0; j < size; j++) {
+    //     printf("%02x", *((uint8_t *)(address + j)));
+    // }
+}
 
 #include "lib/list.h"
 #include "lib/map.h"
@@ -21,21 +29,19 @@ bool is_simple(int n) {
     return true;
 }
 
-// void visualize_map(Map map) {
-//     printf("size: %zu, capacity: %zu\n\n", map.size, map.capacity);
-//     printf("| offst | key   | value |\n");
-//     printf("| ----- | ----- | ----- |\n");
-// 
-//     size_t step = map.key_size + map.value_size;
-//     for (size_t i = 0; i < map.capacity; i++) {
-//         printf(
-//             "| %zu \t| %zu \t| %zu \t|\n",
-//             i,
-//             map.address[step * i],
-//             map.address[step * i + map.key_size]
-//         );
-//     }
-// }
+void visualize_map(Map map) {
+    printf("size: %zu, capacity: %zu\n\n", map.size, map.capacity);
+    printf("key_size: %zu, value_size: %zu\n\n", map.key_size, map.value_size);
+
+    size_t step = map.key_size + map.value_size;
+    for (size_t i = 0; i < map.capacity; i++) {
+        printf("| %zu \t| ", i);
+        show(map.address + i * step, map.key_size);
+        printf(" | ");
+        show(map.address + i * step + map.key_size, map.value_size);
+        printf("\n");
+    }
+}
 
 size_t hash_size_t(void *value) {
     return *(size_t *)value;
@@ -88,7 +94,7 @@ int main() {
         &(struct {size_t _;}){(0)}
     ));
 
-    // visualize_map(simple_numbers);
+    visualize_map(simple_numbers);
 
     return 0;
 }

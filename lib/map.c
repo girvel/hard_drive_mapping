@@ -29,7 +29,7 @@ void map_set(Map *self, void *key, void *value) {
             memcmp(key_stored, key, self->key_size) == 0
         ) break;
 
-        offset = (offset + step) % self->capacity;
+        offset = (offset + step) % (self->capacity * step);
     }
 
     if (key_stored == NULL) self->size++;
@@ -46,7 +46,7 @@ void *map_get(Map self, void *key, void *default_value) {
     size_t offset = initial_offset;
 
     while (memcmp(self.address + offset, key, self.key_size) != 0) {
-        offset = (offset + step) % (self.capacity);
+        offset = (offset + step) % (self.capacity * step);
         if (offset == initial_offset) {
             return default_value;
         }
