@@ -1,11 +1,16 @@
 #include <string.h>
+#include <stdbool.h>
 
 
 typedef struct {
-    size_t *address;
+    void *address;
+    size_t key_size;
+    size_t value_size;
     size_t capacity;
     size_t size;
+    size_t (*hash)(void *);
+    bool (*equal)(void *, void *);
 } Map;
 
-void map_set(Map *self, size_t key, size_t value);
-size_t map_get(Map self, size_t key, size_t default_value);
+void map_set(Map *self, void *key, void *value);
+void *map_get(Map self, void *key, void *default_value);

@@ -8,4 +8,6 @@
     __typeof__ (A) _a = (A); \
     __typeof__ (B) _b = (B); \
     _a < _b ? _a : _b; \
-})
+}
+
+#define REF(TYPE, VALUE) &(struct {TYPE _;}){(VALUE)}

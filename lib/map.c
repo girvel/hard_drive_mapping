@@ -1,38 +1,57 @@
 #include "./map.h"
 #include <stdlib.h>
-#include "./math.h"
+#include <stdbool.h>
+#include "./macros.h"
 
 // TODO memcpy
 // TODO item_size
 
 
-void map_set(Map *self, size_t key, size_t value) {
-    size_t offset = 2 * (key % self->capacity);
-    while (self->address[offset] != key && self->address[offset] != 0) {
-        offset = (offset + 2) % self->capacity;
+bool _is_zero(void *address, size_t size) {
+    char *typed_address = address;
+    for (size_t i = 0; i < size; i++) {
+        if (typed_address[i] != 0) return false;
     }
 
-    if (self->address[offset] == 0) self->size++;
-    self->address[offset] = key;
-    self->address[offset + 1] = value;
+    return true;
 }
 
-size_t map_get(Map self, size_t key, size_t default_value) {
+void map_set(Map *self, void *key, void *value) {
+    size_t hash = self->hash(key);
+    size_t step = self->key_size + self->value_size;
+    size_t offset = step * (hash % self->capacity);
+
+    void *key_stored;
+    while (true) {
+        key_stored = self->address + offset;
+        if (
+            _is_zero(key_stored, self->key_size) ||
+            memcmp(key_stored, key, self->key_size) == 0
+        ) break;
+
+        offset = (offset + step) % self->capacity;
+    }
+
+    if (key_stored == NULL) self->size++;
+    memcpy(key_stored, key, self->key_size);
+    memcpy(key_stored + self->key_size, value, self->value_size);
+}
+
+void *map_get(Map self, void *key, void *default_value) {
     if (key == 0) return default_value;
 
-    size_t initial_offset = 2 * (key % self.capacity);
+    size_t hash = self.hash(key);
+    size_t step = self.key_size + self.value_size;
+    size_t initial_offset = step * (hash % self.capacity);
     size_t offset = initial_offset;
-    while (self.address[offset] != key) {
-        offset = (offset + 2) % (self.capacity);
+
+    while (memcmp(self.address + offset, key, self.key_size) != 0) {
+        offset = (offset + step) % (self.capacity);
         if (offset == initial_offset) {
             return default_value;
         }
     }
 
-    size_t key_stored = self.address[offset];
-    if (key_stored != key) {
-        return default_value;
-    }
-    return self.address[offset + 1];
+    return self.address + offset + self.key_size;
 }
 

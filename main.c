@@ -21,14 +21,24 @@ bool is_simple(int n) {
     return true;
 }
 
-void visualize_map(Map map) {
-    printf("size: %zu, capacity: %zu\n\n", map.size, map.capacity);
-    printf("| offst | key   | value |\n");
-    printf("| ----- | ----- | ----- |\n");
+// void visualize_map(Map map) {
+//     printf("size: %zu, capacity: %zu\n\n", map.size, map.capacity);
+//     printf("| offst | key   | value |\n");
+//     printf("| ----- | ----- | ----- |\n");
+// 
+//     size_t step = map.key_size + map.value_size;
+//     for (size_t i = 0; i < map.capacity; i++) {
+//         printf(
+//             "| %zu \t| %zu \t| %zu \t|\n",
+//             i,
+//             map.address[step * i],
+//             map.address[step * i + map.key_size]
+//         );
+//     }
+// }
 
-    for (size_t i = 0; i < map.capacity; i++) {
-        printf("| %zu \t| %zu \t| %zu \t|\n", i, map.address[2 * i], map.address[2 * i + 1]);
-    }
+size_t hash_size_t(void *value) {
+    return *(size_t *)value;
 }
 
 int main() {
@@ -55,22 +65,30 @@ int main() {
 
     Map simple_numbers;
     simple_numbers.capacity = 50;
-    size_t memory_length = sizeof(size_t) * simple_numbers.capacity * 2;
+    simple_numbers.key_size = sizeof(size_t);
+    simple_numbers.value_size = sizeof(size_t);
+    size_t memory_length = (simple_numbers.key_size + simple_numbers.value_size)
+        * simple_numbers.capacity;
     simple_numbers.address = malloc(memory_length);
     memset(simple_numbers.address, 0, memory_length);
     simple_numbers.size = 0;
+    simple_numbers.hash = hash_size_t;
 
     size_t counter = 1;
-    for (size_t n = 0; n < 100; n++) {
+    for (size_t n = 0; n < 97; n++) {
         if (is_simple(n)) {
-            map_set(&simple_numbers, n, counter);
+            map_set(&simple_numbers, &n, &counter);
             counter++;
         }
     }
 
-    printf("%zu\n", map_get(simple_numbers, 53, 0));
+    printf("%zu\n", *(size_t *)map_get(
+        simple_numbers,
+        &(struct {size_t _;}){(53)},
+        &(struct {size_t _;}){(0)}
+    ));
 
-    visualize_map(simple_numbers);
+    // visualize_map(simple_numbers);
 
     return 0;
 }
