@@ -7,14 +7,6 @@
 #include <string.h>
 #include <math.h>
 
-void show(void *address, size_t size) {
-    (void) size;
-    printf("%zu\t", *(size_t *)address);
-    // for (size_t j = 0; j < size; j++) {
-    //     printf("%02x", *((uint8_t *)(address + j)));
-    // }
-}
-
 #include "lib/list.h"
 #include "lib/map.h"
 #include "lib/test.h"
@@ -37,11 +29,8 @@ void visualize_map(Map map) {
 
     size_t step = map.key_size + map.value_size;
     for (size_t i = 0; i < map.capacity; i++) {
-        printf("| %zu \t| ", i);
-        show(map.address + i * step, map.key_size);
-        printf(" | ");
-        show(map.address + i * step + map.key_size, map.value_size);
-        printf("\n");
+        size_t *entry = map.address + i * step;
+        printf("| %zu \t| %zu \t| %zu |\n", i, 0[entry], 1[entry]);
     }
 }
 
@@ -71,35 +60,7 @@ void test_list_usage() {
     list_free(&sample);
 }
 
-Test tests[] = {
-    test_list_usage,
-    NULL,
-};
-
-int main() {
-    return run_tests(tests);
-
-    printf("  DYNAMIC ARRAY\n");
-
-    List sample;
-    list_init(&sample, sizeof(int));
-
-    for (int n = 0; n < 10000; n++) {
-        if (is_simple(n)) {
-            list_push(&sample, &n);
-        }
-    }
-
-    for (size_t i = 0; i < sample.capacity; i++) {
-        printf("%i ", *LIST_AT(&sample, int, i));
-    }
-    printf("\n\ncapacity: %zu, size: %zu\n", sample.capacity, sample.size);
-
-    list_free(&sample);
-
-
-    printf("  HASHMAP\n");
-
+void test_map() {
     Map simple_numbers;
     simple_numbers.capacity = 50;
     simple_numbers.key_size = sizeof(size_t);
@@ -119,13 +80,19 @@ int main() {
         }
     }
 
-    printf("%zu\n", *(size_t *)map_get(
-        simple_numbers,
-        &(struct {size_t _;}){(53)},
-        &(struct {size_t _;}){(0)}
-    ));
+    counter = 1;
+    for (size_t n = 0; n < 97; n++) {
+        if (is_simple(n)) {
+            ASSERT(*(size_t *)map_get(simple_numbers, &n, &(struct {size_t _;}){(0)}) == counter);
+            counter++;
+        }
+    }
+}
 
-    visualize_map(simple_numbers);
-
-    return 0;
+int main() {
+    return run_tests((Test[]) {
+        test_list_usage,
+        test_map,
+        NULL,
+    });
 }
