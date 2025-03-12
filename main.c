@@ -63,15 +63,7 @@ void test_list_usage() {
 
 void test_map() {
     Map simple_numbers;
-    simple_numbers.capacity = 50;
-    simple_numbers.key_size = sizeof(size_t);
-    simple_numbers.value_size = sizeof(size_t);
-    size_t memory_length = (simple_numbers.key_size + simple_numbers.value_size)
-        * simple_numbers.capacity;
-    simple_numbers.address = malloc(memory_length);
-    memset(simple_numbers.address, 0, memory_length);
-    simple_numbers.size = 0;
-    simple_numbers.hash = hash_size_t;
+    map_init(&simple_numbers, sizeof(size_t), sizeof(size_t), 50, hash_size_t);
 
     size_t counter = 1;
     for (size_t n = 0; n < 100; n++) {
@@ -88,6 +80,8 @@ void test_map() {
             counter++;
         }
     }
+
+    map_free(&simple_numbers);
 }
 
 int main() {

@@ -5,7 +5,8 @@
 
 // TODO memcpy
 // TODO item_size
-// TODO
+// TODO use eq, allow 0 as a key
+// TODO dynamic resize
 
 
 bool _is_zero(void *address, size_t size) {
@@ -15,6 +16,26 @@ bool _is_zero(void *address, size_t size) {
     }
 
     return true;
+}
+
+void map_init(Map *self, size_t key_size, size_t value_size, size_t capacity, HashFunction hash_function) {
+    self->key_size = key_size;
+    self->value_size = value_size;
+    self->capacity = capacity;
+    size_t memory_length = (self->key_size + self->value_size)
+        * self->capacity;
+    self->address = malloc(memory_length);
+    memset(self->address, 0, memory_length);
+    self->size = 0;
+    self->hash = hash_function;
+}
+
+void map_free(Map *self) {
+    if (self->address == NULL) return;
+    free(self->address);
+    self->address = NULL;
+    self->capacity = 0;
+    self->size = 0;
 }
 
 void map_set(Map *self, void *key, void *value) {

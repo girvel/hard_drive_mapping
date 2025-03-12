@@ -56,4 +56,6 @@ void list_free(List *self) {
     if (self->address == NULL) return;
     free(self->address);
     self->address = NULL;
+    self->capacity = 0;
+    self->size = 0;
 }
