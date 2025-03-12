@@ -35,10 +35,6 @@ void visualize_map(Map map) {
     }
 }
 
-size_t hash_size_t(void *value) {
-    return *(size_t *)value;
-}
-
 void test_list_usage() {
     const size_t size = 1000;
 
@@ -61,7 +57,11 @@ void test_list_usage() {
     list_free(&sample);
 }
 
-void test_map() {
+size_t hash_size_t(void *value) {
+    return *(size_t *)value;
+}
+
+void test_map_integers() {
     Map simple_numbers;
     map_init(&simple_numbers, sizeof(size_t), sizeof(size_t), 50, hash_size_t);
 
@@ -84,10 +84,33 @@ void test_map() {
     map_free(&simple_numbers);
 }
 
+size_t hash_str5(void *_str) {
+    char *str = _str;
+    char result = str[0];
+    for (char i = 1; i < 5; i++) {
+        result ^= str[(size_t) i] ^ i;
+    }
+    return result;
+}
+
+void test_map_strings() {
+    Map words;
+    map_init(&words, 5, sizeof(int8_t), 10, hash_str5);
+
+    map_set(&words, "hell", REF(3));
+    map_set(&words, "base", REF(9));
+    map_set(&words, "oh", REF(-4));
+
+    ASSERT(*(int8_t *)map_get(words, "hell", REF(-1)) == 3);
+    ASSERT(*(int8_t *)map_get(words, "base", REF(-1)) == 9);
+    ASSERT(*(int8_t *)map_get(words, "oh", REF(-1)) == -4);
+}
+
 int main() {
     return run_tests((Test[]) {
         test_list_usage,
-        test_map,
+        test_map_integers,
+        test_map_strings,
         NULL,
     });
 }

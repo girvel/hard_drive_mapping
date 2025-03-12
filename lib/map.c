@@ -5,7 +5,8 @@
 
 // TODO memcpy
 // TODO item_size
-// TODO use eq, allow 0 as a key
+// TODO use eq
+// TODO allow 0 as a key
 // TODO dynamic resize
 
 
