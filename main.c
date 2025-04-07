@@ -106,11 +106,20 @@ void test_map_strings() {
     ASSERT(*(int8_t *)map_get(words, "oh", REF(-1)) == -4);
 }
 
+void test_map_zero() {
+    Map map;
+    map_init(&map, sizeof(size_t), sizeof(size_t), 5, hash_size_t);
+
+    map_set(&map, REF(0), REF(3));
+    ASSERT(*(size_t *)map_get(map, REF(0), NULL) == 3);
+}
+
 int main() {
     return run_tests((Test[]) {
         test_list_usage,
         test_map_integers,
         test_map_strings,
+        test_map_zero,
         NULL,
     });
 }

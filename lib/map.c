@@ -3,11 +3,11 @@
 #include <stdbool.h>
 #include "./macros.h"
 
-// TODO memcpy
 // TODO item_size
 // TODO use eq
 // TODO allow 0 as a key
 // TODO dynamic resize
+// TODO iteration
 
 
 bool _is_zero(void *address, size_t size) {
